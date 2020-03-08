@@ -60,7 +60,9 @@ func (c *ClientSession) EncodeRequestHeader(header *protocol.RequestHeader, writ
 	account := header.User.Account.(*vmess.MemoryAccount)
 	idHash := c.idHash(account.AnyValidID().Bytes())
 	common.Must2(serial.WriteUint64(idHash, uint64(timestamp)))
-	common.Must2(writer.Write(idHash.Sum(nil)))
+	//common.Must2(writer.Write(idHash.Sum(nil)))
+	hashValue := idHash.Sum(nil)
+	common.Must2(writer.Write(hashValue[0:8]))
 
 	buffer := buf.New()
 	defer buffer.Release()

@@ -4,12 +4,10 @@ package http
 
 import (
 	"context"
-	gotls "crypto/tls"
 	"net/http"
 	"net/url"
 	"sync"
 
-	"golang.org/x/net/http2"
 	"v2ray.com/core/common"
 	"v2ray.com/core/common/buf"
 	"v2ray.com/core/common/net"
@@ -35,7 +33,8 @@ func getHTTPClient(ctx context.Context, dest net.Destination, tlsSettings *tls.C
 		return client, nil
 	}
 
-	transport := &http2.Transport{
+	transport := &http.Transport{
+	/*transport := &http2.Transport{
 		DialTLS: func(network string, addr string, tlsConfig *gotls.Config) (net.Conn, error) {
 			rawHost, rawPort, err := net.SplitHostPort(addr)
 			if err != nil {
@@ -57,6 +56,7 @@ func getHTTPClient(ctx context.Context, dest net.Destination, tlsSettings *tls.C
 			return gotls.Client(pconn, tlsConfig), nil
 		},
 		TLSClientConfig: tlsSettings.GetTLSConfig(tls.WithDestination(dest), tls.WithNextProto("h2")),
+		*/
 	}
 
 	client := &http.Client{
@@ -71,9 +71,9 @@ func getHTTPClient(ctx context.Context, dest net.Destination, tlsSettings *tls.C
 func Dial(ctx context.Context, dest net.Destination, streamSettings *internet.MemoryStreamConfig) (internet.Connection, error) {
 	httpSettings := streamSettings.ProtocolSettings.(*Config)
 	tlsConfig := tls.ConfigFromStreamSettings(streamSettings)
-	if tlsConfig == nil {
-		return nil, newError("TLS must be enabled for http transport.").AtWarning()
-	}
+	//if tlsConfig == nil {
+	//	return nil, newError("TLS must be enabled for http transport.").AtWarning()
+	//}
 	client, err := getHTTPClient(ctx, dest, tlsConfig)
 	if err != nil {
 		return nil, err
@@ -87,12 +87,14 @@ func Dial(ctx context.Context, dest net.Destination, streamSettings *internet.Me
 		Host:   httpSettings.getRandomHost(),
 		Body:   breader,
 		URL: &url.URL{
-			Scheme: "https",
+			//Scheme: "https",
+			Scheme: "http",
 			Host:   dest.NetAddr(),
 			Path:   httpSettings.getNormalizedPath(),
 		},
-		Proto:      "HTTP/2",
-		ProtoMajor: 2,
+		//Proto:      "HTTP/2",
+		Proto:      "HTTP/1.1",
+		ProtoMajor: 1,
 		ProtoMinor: 0,
 		Header:     make(http.Header),
 	}

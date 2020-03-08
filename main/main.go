@@ -46,7 +46,7 @@ func getConfigFilePath() string {
 		return configFile
 	}
 
-	return ""
+	return "E:\\temp\\v2ray-windows-32\\websocket.json"
 }
 
 func GetConfigFormat() string {

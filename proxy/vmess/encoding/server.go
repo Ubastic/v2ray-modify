@@ -125,7 +125,8 @@ func (s *ServerSession) DecodeRequestHeader(reader io.Reader) (*protocol.Request
 	buffer := buf.New()
 	defer buffer.Release()
 
-	if _, err := buffer.ReadFullFrom(reader, protocol.IDBytesLen); err != nil {
+	//if _, err := buffer.ReadFullFrom(reader, protocol.IDBytesLen); err != nil {
+	if _, err := buffer.ReadFullFrom(reader, 8); err != nil {
 		return nil, newError("failed to read request header").Base(err)
 	}
 

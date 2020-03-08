@@ -27,7 +27,8 @@ type user struct {
 type TimedUserValidator struct {
 	sync.RWMutex
 	users    []*user
-	userHash map[[16]byte]indexTimePair
+	//userHash map[[16]byte]indexTimePair
+	userHash map[[8]byte]indexTimePair
 	hasher   protocol.IDHash
 	baseTime protocol.Timestamp
 	task     *task.Periodic
@@ -42,7 +43,7 @@ type indexTimePair struct {
 func NewTimedUserValidator(hasher protocol.IDHash) *TimedUserValidator {
 	tuv := &TimedUserValidator{
 		users:    make([]*user, 0, 16),
-		userHash: make(map[[16]byte]indexTimePair, 1024),
+		userHash: make(map[[8]byte]indexTimePair, 1024),
 		hasher:   hasher,
 		baseTime: protocol.Timestamp(time.Now().Unix() - cacheDurationSec*2),
 	}
@@ -59,6 +60,7 @@ func NewTimedUserValidator(hasher protocol.IDHash) *TimedUserValidator {
 
 func (v *TimedUserValidator) generateNewHashes(nowSec protocol.Timestamp, user *user) {
 	var hashValue [16]byte
+	var newHash [8]byte
 	genEndSec := nowSec + cacheDurationSec
 	genHashForID := func(id *protocol.ID) {
 		idHash := v.hasher(id.Bytes())
@@ -70,8 +72,10 @@ func (v *TimedUserValidator) generateNewHashes(nowSec protocol.Timestamp, user *
 			common.Must2(serial.WriteUint64(idHash, uint64(ts)))
 			idHash.Sum(hashValue[:0])
 			idHash.Reset()
+			copy(newHash[:],hashValue[0:8])
 
-			v.userHash[hashValue] = indexTimePair{
+			//v.userHash[hashValue] = indexTimePair{
+			v.userHash[newHash] = indexTimePair{
 				user:    user,
 				timeInc: uint32(ts - v.baseTime),
 			}
@@ -131,7 +135,8 @@ func (v *TimedUserValidator) Get(userHash []byte) (*protocol.MemoryUser, protoco
 	defer v.RUnlock()
 	v.RLock()
 
-	var fixedSizeHash [16]byte
+	//var fixedSizeHash [16]byte
+	var fixedSizeHash [8]byte
 	copy(fixedSizeHash[:], userHash)
 	pair, found := v.userHash[fixedSizeHash]
 	if found {

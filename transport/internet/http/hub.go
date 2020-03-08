@@ -16,9 +16,6 @@ import (
 	"v2ray.com/core/common/signal/done"
 	"v2ray.com/core/transport/internet"
 	"v2ray.com/core/transport/internet/tls"
-
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 type Listener struct {
@@ -108,11 +105,11 @@ func Listen(ctx context.Context, address net.Address, port net.Port, streamSetti
 	var server *http.Server
 	config := tls.ConfigFromStreamSettings(streamSettings)
 	if config == nil {
-		h2s := &http2.Server{}
+		//h2s := &http2.Server{}
 
 		server = &http.Server{
 			Addr:              serial.Concat(address, ":", port),
-			Handler:           h2c.NewHandler(listener, h2s),
+			Handler:           listener,//h2c.NewHandler(listener, h2s),
 			ReadHeaderTimeout: time.Second * 4,
 		}
 	} else {

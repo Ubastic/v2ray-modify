@@ -11,6 +11,7 @@ import (
 
 const (
 	IDBytesLen = 16
+	//IDBytesLen = 8
 )
 
 type IDHash func(key []byte) hash.Hash
