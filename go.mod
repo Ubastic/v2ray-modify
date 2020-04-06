@@ -1,4 +1,4 @@
-module v2ray.com/core
+module github.com/Ubastic/v2ray-modify
 
 require (
 	github.com/fwhezfwhez/errorx v0.0.0-20200108080008-e2e1af0e0c70
